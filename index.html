@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HIRAMEKI — 全人類UX改善計画</title>
+<meta name="description" content="世界をちょっと良くするアイデアをカードにして、Xに蒔こう。">
+<meta property="og:title" content="HIRAMEKI — 全人類UX改善計画">
+<meta property="og:description" content="世界をちょっと良くするアイデアをカードにして、Xに蒔こう。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://osakenpiro.github.io/hirameki/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="HIRAMEKI — 全人類UX改善計画">
+<meta name="twitter:description" content="世界をちょっと良くするアイデアをカードにして、Xに蒔こう。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0c0c14;
+  --surface: #16162a;
+  --surface2: #1e1e3a;
+  --text: #e8e6f0;
+  --dim: #8a87a8;
+  --accent: #f7c948;
+  --glow: rgba(247,201,72,0.25);
+  --spark: #ff6b6b;
+  --cool: #4ecdc4;
+  --r: 16px;
+}
+
+html, body {
+  width: 100%; min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(167,139,250,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(247,201,72,0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+#app {
+  position: relative; z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 100vh;
+}
+
+/* ── Shared ── */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn 0.35s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+.logo {
+  font-size: 2.4rem; font-weight: 900; text-align: center; letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--accent), #ffd700, var(--spark));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle { text-align:center; font-size:0.7rem; color:var(--dim); letter-spacing:6px; margin-top:4px; }
+.tagline { text-align:center; font-size:0.95rem; color:var(--dim); line-height:1.8; margin-top:14px; }
+.tagline em { font-style:normal; color:var(--accent); font-weight:700; }
+
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding:14px 24px; border:none; border-radius:50px;
+  font-family:inherit; font-size:1rem; font-weight:700;
+  cursor:pointer; transition:all 0.2s; -webkit-tap-highlight-color:transparent;
+}
+.btn:active { transform:scale(0.97); }
+.btn-primary { width:100%; background:linear-gradient(135deg,var(--accent),#ffd700); color:var(--bg); box-shadow:0 4px 24px var(--glow); }
+.btn-primary:disabled { opacity:0.4; cursor:default; }
+.btn-secondary { background:var(--surface2); color:var(--text); border:1px solid rgba(255,255,255,0.08); flex:1; }
+.btn-x { width:100%; background:#000; color:#fff; border:1px solid rgba(255,255,255,0.15); }
+.btn-danger { background:var(--spark); color:#fff; flex:1; }
+.btn-block { width:100%; }
+
+.back-btn {
+  background:none; border:none; color:var(--dim); font-family:inherit;
+  font-size:0.85rem; cursor:pointer; padding:8px 0; margin-bottom:8px;
+}
+
+/* ── Stats ── */
+.stats-bar { display:flex; justify-content:center; gap:2rem; margin-top:1.6rem; padding:1rem; background:var(--surface); border-radius:var(--r); border:1px solid rgba(255,255,255,0.05); }
+.stat-val { font-size:1.5rem; font-weight:800; color:var(--accent); text-align:center; }
+.stat-lbl { font-size:0.68rem; color:var(--dim); text-align:center; margin-top:2px; }
+
+/* ── Idea List ── */
+.section-title { font-size:0.7rem; color:var(--dim); letter-spacing:4px; margin:1.5rem 0 0.6rem 4px; }
+.idea-item {
+  display:flex; align-items:center; gap:12px; padding:14px;
+  background:var(--surface); border-radius:var(--r); border:1px solid rgba(255,255,255,0.04);
+  cursor:pointer; margin-bottom:8px; transition:background 0.2s;
+}
+.idea-item:active { background:var(--surface2); }
+.idea-icon { font-size:1.3rem; width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.04); border-radius:12px; flex-shrink:0; }
+.idea-content { flex:1; min-width:0; }
+.idea-title { font-weight:700; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.idea-date { font-size:0.7rem; color:var(--dim); margin-top:2px; }
+.idea-num { font-size:0.7rem; color:var(--dim); opacity:0.5; }
+
+.empty { text-align:center; padding:3rem 1rem; color:var(--dim); }
+.empty-icon { font-size:2.5rem; margin-bottom:0.8rem; }
+.empty-text { font-size:0.9rem; line-height:1.7; }
+
+/* ── Steps ── */
+.dots { display:flex; justify-content:center; gap:8px; margin:16px 0; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--surface2); transition:all 0.3s; }
+.dot.active { background:var(--accent); width:24px; border-radius:4px; box-shadow:0 0 8px var(--glow); }
+.dot.done { background:var(--cool); }
+
+.input-step { display:none; }
+.input-step.active { display:block; animation:stepIn 0.3s ease; }
+@keyframes stepIn { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
+
+.input-label { font-size:1.1rem; font-weight:700; margin-bottom:4px; }
+.input-hint { font-size:0.8rem; color:var(--dim); margin-bottom:14px; line-height:1.5; }
+
+.text-input {
+  width:100%; padding:14px; background:var(--surface);
+  border:2px solid rgba(255,255,255,0.06); border-radius:var(--r);
+  color:var(--text); font-family:inherit; font-size:16px; font-weight:500;
+  outline:none; transition:border-color 0.2s;
+}
+.text-input:focus { border-color:var(--accent); box-shadow:0 0 0 4px var(--glow); }
+.text-input::placeholder { color:var(--dim); opacity:0.5; }
+textarea.text-input { resize:none; min-height:120px; line-height:1.6; }
+
+.char-count { text-align:right; font-size:0.7rem; color:var(--dim); margin-top:4px; }
+.char-count.warn { color:var(--spark); }
+
+.cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.cat-btn {
+  display:flex; align-items:center; gap:8px; padding:12px 14px;
+  background:var(--surface); border:2px solid rgba(255,255,255,0.06);
+  border-radius:var(--r); color:var(--text); font-family:inherit;
+  font-size:0.85rem; font-weight:500; cursor:pointer; transition:all 0.2s;
+}
+.cat-btn:active { background:var(--surface2); }
+.cat-btn.selected { border-color:var(--accent); background:rgba(247,201,72,0.08); box-shadow:0 0 0 3px var(--glow); }
+.cat-btn-icon { font-size:1.3rem; }
+
+.actions { display:flex; gap:8px; margin-top:16px; }
+
+/* ── Preview ── */
+.preview-label { text-align:center; font-size:0.8rem; color:var(--dim); margin:12px 0 10px; }
+.card-canvas { width:100%; border-radius:var(--r); box-shadow:0 8px 40px rgba(0,0,0,0.4); display:block; }
+.preview-actions { display:flex; flex-direction:column; gap:8px; margin-top:20px; }
+.share-guide { text-align:center; font-size:0.75rem; color:var(--dim); line-height:1.7; padding:12px; background:var(--surface); border-radius:var(--r); margin-top:8px; }
+.share-guide strong { color:var(--accent); }
+
+/* ── Detail ── */
+.meta { padding:16px; background:var(--surface); border-radius:var(--r); margin-top:16px; }
+.meta-row { display:flex; justify-content:space-between; padding:8px 0; font-size:0.85rem; }
+.meta-label { color:var(--dim); }
+.meta-value { font-weight:600; }
+
+/* ── Toast ── */
+.toast {
+  position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(80px);
+  padding:10px 20px; background:var(--surface2); border:1px solid rgba(255,255,255,0.1);
+  border-radius:50px; font-size:0.85rem; font-weight:600; z-index:999;
+  transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); pointer-events:none;
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+/* ── Overlay ── */
+.overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.7);
+  display:none; align-items:center; justify-content:center; z-index:500; padding:1rem;
+}
+.overlay.show { display:flex; }
+.dialog { background:var(--surface); border-radius:var(--r); padding:2rem; max-width:320px; width:100%; text-align:center; }
+.dialog p { margin-bottom:1.5rem; line-height:1.6; }
+.dialog-btns { display:flex; gap:8px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- ═══ HOME ═══ -->
+  <div id="screen-home" class="screen active">
+    <div style="padding:2rem 0 1rem; text-align:center;">
+      <div class="logo">💡 HIRAMEKI</div>
+      <div class="subtitle">全 人 類 U X 改 善 計 画</div>
+      <p class="tagline">世界をちょっと良くする<em>アイデア</em>を<br>カードにして、Xに蒔こう。</p>
+      <div style="margin-top:1.6rem;">
+        <button class="btn btn-primary" onclick="startNew()">💡 ひらめいた！</button>
+      </div>
+      <div class="stats-bar">
+        <div><div class="stat-val" id="s-total">0</div><div class="stat-lbl">アイデア</div></div>
+        <div><div class="stat-val" id="s-shared">0</div><div class="stat-lbl">共有済み</div></div>
+        <div><div class="stat-val" id="s-streak">0</div><div class="stat-lbl">連続日数</div></div>
+      </div>
+    </div>
+    <div class="section-title">あなたのひらめき</div>
+    <div id="idea-list"></div>
+  </div>
+
+  <!-- ═══ INPUT ═══ -->
+  <div id="screen-input" class="screen">
+    <button class="back-btn" onclick="go('home')">← もどる</button>
+    <div class="dots" id="dots"></div>
+
+    <div class="input-step" id="step-0">
+      <div class="input-label">どんなジャンル？</div>
+      <div class="input-hint">アイデアのカテゴリを選んでください</div>
+      <div class="cat-grid" id="cat-grid"></div>
+      <div class="actions"><button class="btn btn-primary" id="btn-s0" disabled onclick="nextStep()">つぎへ →</button></div>
+    </div>
+
+    <div class="input-step" id="step-1">
+      <div class="input-label">ひらめきのタイトル</div>
+      <div class="input-hint">短くインパクトのある一言で。<br>例：「全自動風呂洗いマシン」</div>
+      <input type="text" class="text-input" id="inp-title" placeholder="アイデアを一言で" maxlength="40" oninput="onTitle()">
+      <div class="char-count" id="cnt-title">0 / 40</div>
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="prevStep()">← もどる</button>
+        <button class="btn btn-primary" style="flex:1" id="btn-s1" disabled onclick="nextStep()">つぎへ →</button>
+      </div>
+    </div>
+
+    <div class="input-step" id="step-2">
+      <div class="input-label">もうすこし詳しく</div>
+      <div class="input-hint">どんな問題を解決する？なぜこれが必要？（省略OK）</div>
+      <textarea class="text-input" id="inp-desc" placeholder="こんな世界になったらいいのに…" maxlength="140" oninput="onDesc()"></textarea>
+      <div class="char-count" id="cnt-desc">0 / 140</div>
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="prevStep()">← もどる</button>
+        <button class="btn btn-primary" style="flex:1" onclick="doPreview()">✨ カード生成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PREVIEW ═══ -->
+  <div id="screen-preview" class="screen">
+    <button class="back-btn" onclick="go('input')">← 編集にもどる</button>
+    <div class="preview-label">カードプレビュー</div>
+    <canvas id="cv-preview" class="card-canvas"></canvas>
+    <div class="preview-actions">
+      <button class="btn btn-primary" onclick="downloadCard()">📥 カード画像を保存</button>
+      <button class="btn btn-x" onclick="shareX()">𝕏 ポストを作成</button>
+    </div>
+    <div class="share-guide">
+      <strong>共有のながれ</strong><br>
+      ① 「カード画像を保存」で画像をダウンロード<br>
+      ② 「ポストを作成」でXが開く<br>
+      ③ 保存した画像を添付して投稿！
+    </div>
+    <button class="btn btn-secondary btn-block" style="margin-top:8px" onclick="saveHome()">💾 保存してホームへ</button>
+  </div>
+
+  <!-- ═══ DETAIL ═══ -->
+  <div id="screen-detail" class="screen">
+    <button class="back-btn" onclick="go('home')">← もどる</button>
+    <canvas id="cv-detail" class="card-canvas"></canvas>
+    <div class="meta" id="detail-meta"></div>
+    <div class="actions" style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="reshareX()">𝕏 もう一度共有</button>
+      <button class="btn btn-danger" onclick="confirmDel()">🗑 削除</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="overlay" id="del-overlay">
+  <div class="dialog">
+    <p>このアイデアを削除しますか？<br>もとに戻せません。</p>
+    <div class="dialog-btns">
+      <button class="btn btn-secondary" onclick="closeDel()">やめる</button>
+      <button class="btn btn-danger" onclick="doDel()">削除する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SITE_URL = "https://osakenpiro.github.io/hirameki/";
+const CATS = {
+  life:    { icon:"🏠", name:"生活",        g:["#1a1a2e","#16213e","#0f3460"] },
+  move:    { icon:"🚗", name:"移動",        g:["#0d1b2a","#1b2838","#1a3a4a"] },
+  tech:    { icon:"💻", name:"テクノロジー",  g:["#0a0a1a","#1a0a2e","#2d1b69"] },
+  health:  { icon:"🏥", name:"健康",        g:["#0a1a1a","#0d2818","#1a3a2a"] },
+  edu:     { icon:"📚", name:"教育",        g:["#1a1a0a","#2a2810","#3a3520"] },
+  society: { icon:"🌍", name:"社会",        g:["#1a0a0a","#2e1a1a","#3a2020"] },
+  fun:     { icon:"🎮", name:"エンタメ",     g:["#1a0a1a","#2a1030","#3a1848"] },
+};
+const KEY = "hirameki_ideas_v2";
+
+let ideas = [], step = 0, draft = { cat:"", title:"", desc:"", num:1 }, viewId = null;
+
+// ── Storage ──
+function load() { try { ideas = JSON.parse(localStorage.getItem(KEY)||"[]"); } catch { ideas=[]; } }
+function save() { localStorage.setItem(KEY, JSON.stringify(ideas)); }
+
+// ── Screens ──
+function go(name) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-"+name).classList.add("active");
+  if (name === "home") renderHome();
+}
+
+// ── Home ──
+function renderHome() {
+  const total = ideas.length;
+  const shared = ideas.filter(i=>i.shared).length;
+  document.getElementById("s-total").textContent = total;
+  document.getElementById("s-shared").textContent = shared;
+  document.getElementById("s-streak").textContent = streak();
+
+  const el = document.getElementById("idea-list");
+  if (!total) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">💡</div><div class="empty-text">まだアイデアがありません。<br>「ひらめいた！」を押して、<br>世界を変えるアイデアを投稿しよう。</div></div>';
+    return;
+  }
+  el.innerHTML = ideas.slice().reverse().map(i => {
+    const c = CATS[i.cat]||{icon:"💡",name:"?"};
+    const d = new Date(i.createdAt);
+    const ds = d.getFullYear()+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0");
+    return `<div class="idea-item" onclick="viewIdea('${i.id}')">
+      <div class="idea-icon">${c.icon}</div>
+      <div class="idea-content"><div class="idea-title">${esc(i.title)}</div><div class="idea-date">${ds}${i.shared?" ・ 共有済み ✓":""}</div></div>
+      <div class="idea-num">#${String(i.num).padStart(4,"0")}</div>
+    </div>`;
+  }).join("");
+}
+
+function streak() {
+  if (!ideas.length) return 0;
+  const days = [...new Set(ideas.map(i => {
+    const d = new Date(i.createdAt);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  }))].sort((a,b) => b-a);
+  const today = new Date(); 
+  const t = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const diff0 = Math.round((t - days[0]) / 86400000);
+  if (diff0 > 1) return 0;
+  let s = 1;
+  for (let i = 1; i < days.length; i++) {
+    if (Math.round((days[i-1]-days[i])/86400000) === 1) s++; else break;
+  }
+  return s;
+}
+
+// ── Input ──
+function startNew() {
+  draft = { cat:"", title:"", desc:"", num: ideas.length ? Math.max(...ideas.map(i=>i.num))+1 : 1 };
+  step = 0;
+  document.getElementById("inp-title").value = "";
+  document.getElementById("inp-desc").value = "";
+  document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("selected"));
+  document.getElementById("btn-s0").disabled = true;
+  document.getElementById("btn-s1").disabled = true;
+  updateCounts();
+  go("input");
+  showStep(0);
+}
+
+function buildCatGrid() {
+  const el = document.getElementById("cat-grid");
+  el.innerHTML = Object.entries(CATS).map(([k,v]) =>
+    `<button class="cat-btn" data-cat="${k}" onclick="pickCat(this)"><span class="cat-btn-icon">${v.icon}</span> ${v.name}</button>`
+  ).join("");
+}
+
+function pickCat(btn) {
+  document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+  draft.cat = btn.dataset.cat;
+  document.getElementById("btn-s0").disabled = false;
+}
+
+function showStep(n) {
+  step = n;
+  document.querySelectorAll(".input-step").forEach(s => s.classList.remove("active"));
+  document.getElementById("step-"+n).classList.add("active");
+  const dots = document.getElementById("dots");
+  dots.innerHTML = [0,1,2].map(i => `<div class="dot${i<n?" done":""}${i===n?" active":""}"></div>`).join("");
+  if (n===1) document.getElementById("inp-title").focus();
+  if (n===2) document.getElementById("inp-desc").focus();
+}
+
+function nextStep() { showStep(step+1); }
+function prevStep() { showStep(step-1); }
+
+function onTitle() {
+  const v = document.getElementById("inp-title").value;
+  const c = document.getElementById("cnt-title");
+  c.textContent = v.length+" / 40";
+  c.className = v.length>35 ? "char-count warn" : "char-count";
+  document.getElementById("btn-s1").disabled = !v.trim();
+}
+
+function onDesc() {
+  const v = document.getElementById("inp-desc").value;
+  const c = document.getElementById("cnt-desc");
+  c.textContent = v.length+" / 140";
+  c.className = v.length>120 ? "char-count warn" : "char-count";
+}
+
+function updateCounts() { onTitle(); onDesc(); }
+
+// ── Card Drawing (Canvas API) ──
+function drawCard(canvas, data) {
+  const W=1200, H=630;
+  canvas.width=W; canvas.height=H;
+  const ctx = canvas.getContext("2d");
+  const cat = CATS[data.cat]||CATS.life;
+
+  // Background gradient
+  const grad = ctx.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0, cat.g[0]); grad.addColorStop(0.5, cat.g[1]); grad.addColorStop(1, cat.g[2]);
+  ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+
+  // Glow
+  ctx.globalAlpha=0.12;
+  const r1 = ctx.createRadialGradient(W*0.85,H*0.15,0,W*0.85,H*0.15,300);
+  r1.addColorStop(0,"#f7c948"); r1.addColorStop(1,"transparent");
+  ctx.fillStyle=r1; ctx.fillRect(0,0,W,H);
+  const r2 = ctx.createRadialGradient(W*0.15,H*0.85,0,W*0.15,H*0.85,250);
+  r2.addColorStop(0,"#4ecdc4"); r2.addColorStop(1,"transparent");
+  ctx.fillStyle=r2; ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha=1;
+
+  // Grid dots pattern
+  ctx.globalAlpha=0.04;
+  ctx.fillStyle="#fff";
+  for(let x=40;x<W;x+=40) for(let y=40;y<H;y+=40) { ctx.beginPath(); ctx.arc(x,y,1,0,Math.PI*2); ctx.fill(); }
+  ctx.globalAlpha=1;
+
+  // Brand
+  ctx.textBaseline="top";
+  ctx.font="bold 30px -apple-system, 'Segoe UI', sans-serif";
+  ctx.fillStyle="#f7c948";
+  ctx.fillText("💡 HIRAMEKI", 80, 56);
+  ctx.font="300 17px sans-serif";
+  ctx.fillStyle="rgba(255,255,255,0.35)";
+  ctx.fillText("全人類UX改善計画", 330, 63);
+
+  // Category badge
+  const catTxt = cat.icon+" "+cat.name;
+  ctx.font="400 20px sans-serif";
+  const cw = ctx.measureText(catTxt).width+28;
+  const cx = W-80-cw;
+  roundRect(ctx, cx,52,cw,34,17);
+  ctx.fillStyle="rgba(255,255,255,0.08)"; ctx.fill();
+  ctx.fillStyle="rgba(255,255,255,0.7)";
+  ctx.fillText(catTxt, cx+14, 58);
+
+  // Title
+  ctx.font="900 50px -apple-system, 'Segoe UI', sans-serif";
+  ctx.fillStyle="#fff";
+  const tLines = wrap(ctx, data.title, W-160, 2);
+  tLines.forEach((l,i) => ctx.fillText(l, 80, 150+i*62));
+
+  // Desc
+  if (data.desc) {
+    ctx.font="400 23px sans-serif";
+    ctx.fillStyle="rgba(255,255,255,0.55)";
+    const dLines = wrap(ctx, data.desc, W-160, 3);
+    const dy = 150+tLines.length*62+16;
+    dLines.forEach((l,i) => ctx.fillText(l, 80, dy+i*34));
+  }
+
+  // Bottom
+  ctx.font="600 19px sans-serif";
+  ctx.fillStyle="#f7c948";
+  ctx.fillText("#全人類UX改善計画  #HIRAMEKI", 80, H-56);
+  ctx.font="400 19px sans-serif";
+  ctx.fillStyle="rgba(255,255,255,0.2)";
+  const idTxt = "#"+String(data.num).padStart(4,"0");
+  ctx.fillText(idTxt, W-80-ctx.measureText(idTxt).width, H-56);
+}
+
+function roundRect(ctx,x,y,w,h,r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+function wrap(ctx, text, max, maxLines) {
+  const chars=[...text], lines=[]; let cur="";
+  for(const ch of chars) {
+    const t=cur+ch;
+    if(ctx.measureText(t).width>max) {
+      lines.push(cur); cur=ch;
+      if(lines.length>=maxLines) { lines[lines.length-1]=lines[lines.length-1].slice(0,-1)+"…"; return lines; }
+    } else cur=t;
+  }
+  if(cur) lines.push(cur);
+  return lines;
+}
+
+// ── Preview ──
+function doPreview() {
+  draft.title = document.getElementById("inp-title").value.trim();
+  draft.desc = document.getElementById("inp-desc").value.trim();
+  if (!draft.title) { showStep(1); return; }
+  go("preview");
+  drawCard(document.getElementById("cv-preview"), draft);
+}
+
+function downloadCard() {
+  const cv = document.getElementById("cv-preview");
+  const a = document.createElement("a");
+  a.download = "hirameki_"+draft.num+".png";
+  a.href = cv.toDataURL("image/png");
+  a.click();
+  saveIdea(false);
+  toast("💾 画像を保存しました！");
+}
+
+function buildTweet(title, desc, cat) {
+  const c = CATS[cat]||{icon:"💡",name:"?"};
+  return `💡 ${title}${desc?"\n"+desc:""}\n\n${c.icon} ${c.name}\n#全人類UX改善計画 #HIRAMEKI\n${SITE_URL}`;
+}
+
+function shareX() {
+  const text = buildTweet(draft.title, draft.desc, draft.cat);
+  window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(text), "_blank");
+  saveIdea(true);
+  toast("𝕏 ポスト画面を開きました");
+}
+
+function saveIdea(shared) {
+  const ex = ideas.find(i => i.num===draft.num);
+  if (ex) { if(shared) { ex.shared=true; save(); } return; }
+  ideas.push({
+    id:"idea_"+Date.now(), num:draft.num, cat:draft.cat,
+    title:draft.title, desc:draft.desc, shared:!!shared,
+    createdAt:new Date().toISOString()
+  });
+  save();
+}
+
+function saveHome() { saveIdea(false); toast("💾 保存しました！"); go("home"); }
+
+// ── Detail ──
+function viewIdea(id) {
+  viewId = id;
+  const idea = ideas.find(i=>i.id===id);
+  if(!idea) return;
+  go("detail");
+  drawCard(document.getElementById("cv-detail"), idea);
+
+  const c = CATS[idea.cat]||{icon:"💡",name:"?"};
+  const d = new Date(idea.createdAt);
+  const ds = d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日";
+  document.getElementById("detail-meta").innerHTML = [
+    ["カテゴリ", c.icon+" "+c.name],
+    ["作成日", ds],
+    ["共有", idea.shared?"✓ 共有済み":"未共有"],
+    ["番号", "#"+String(idea.num).padStart(4,"0")]
+  ].map(([l,v]) => `<div class="meta-row"><span class="meta-label">${l}</span><span class="meta-value">${v}</span></div>`).join("");
+}
+
+function reshareX() {
+  const idea = ideas.find(i=>i.id===viewId);
+  if(!idea) return;
+  const text = buildTweet(idea.title, idea.desc, idea.cat);
+  window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(text), "_blank");
+  idea.shared=true; save();
+  toast("𝕏 ポスト画面を開きました");
+}
+
+function confirmDel() { document.getElementById("del-overlay").classList.add("show"); }
+function closeDel() { document.getElementById("del-overlay").classList.remove("show"); }
+function doDel() {
+  ideas = ideas.filter(i=>i.id!==viewId);
+  save(); closeDel(); toast("🗑 削除しました"); go("home");
+}
+
+// ── Utils ──
+function esc(s) { const d=document.createElement("div"); d.textContent=s||""; return d.innerHTML; }
+function toast(msg) {
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2500);
+}
+
+// ── Init ──
+load(); buildCatGrid(); renderHome();
+</script>
+</body>
+</html>
