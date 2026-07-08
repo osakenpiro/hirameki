@@ -494,17 +494,20 @@ function roundRect(ctx,x,y,w,h,r) {
   ctx.closePath();
 }
 
+// wrapping shared with @osakenpiro/sharecard (github.com/osakenpiro/sharecard)
 function wrap(ctx, text, max, maxLines) {
-  const chars=[...text], lines=[]; let cur="";
-  for(const ch of chars) {
-    const t=cur+ch;
-    if(ctx.measureText(t).width>max) {
-      lines.push(cur); cur=ch;
-      if(lines.length>=maxLines) { lines[lines.length-1]=lines[lines.length-1].slice(0,-1)+"…"; return lines; }
-    } else cur=t;
-  }
-  if(cur) lines.push(cur);
-  return lines;
+  const measure = t => ctx.measureText(t).width;
+  const brk = c => { const n=c.codePointAt(0); return (n>=0x3040&&n<=0x30ff)||(n>=0x3400&&n<=0x4dbf)||(n>=0x4e00&&n<=0x9fff)||(n>=0xf900&&n<=0xfaff)||(n>=0xff00&&n<=0xffef); };
+  const toks=[]; let b="";
+  for(const ch of text){ if(brk(ch)){ if(b){toks.push(b);b="";} toks.push(ch);} else if(ch===" "){ b+=ch; toks.push(b); b=""; } else b+=ch; }
+  if(b) toks.push(b);
+  const all=[]; let line="";
+  for(const tk of toks){ const c=line+tk; if(line!==""&&measure(c)>max){ all.push(line.replace(/\s+$/,"")); line=tk.replace(/^\s+/,""); } else line=c; }
+  if(line!=="") all.push(line.replace(/\s+$/,""));
+  if(!maxLines||all.length<=maxLines) return all;
+  const kept=all.slice(0,maxLines); let last=kept[maxLines-1];
+  if(measure(last+"…")>max){ const cs=[...last]; while(cs.length&&measure(cs.join("")+"…")>max) cs.pop(); last=cs.join(""); }
+  kept[maxLines-1]=last+"…"; return kept;
 }
 
 // ── Preview ──
